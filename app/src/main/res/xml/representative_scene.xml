@@ -10,6 +10,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
     </ConstraintSet>
 
     <ConstraintSet android:id="@+id/end">
@@ -43,7 +44,7 @@
     <Transition
         app:constraintSetEnd="@id/end"
         app:constraintSetStart="@+id/start"
-        app:duration="3000"
+        app:duration="2000"
         app:motionInterpolator="linear">
         <OnSwipe
             app:dragDirection="dragUp"

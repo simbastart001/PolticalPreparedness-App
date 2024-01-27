@@ -36,7 +36,7 @@
             android:autofillHints=""
             android:hint="@string/address_line_1"
             android:inputType="textPostalAddress"
-            android:text="@={viewModel.address.line1}"
+            android:text="@={address.line1}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/search_title" />
 
@@ -47,7 +47,7 @@
             android:autofillHints=""
             android:hint="@string/address_line_2"
             android:inputType="textPostalAddress"
-            android:text="@={viewModel.address.line2}"
+            android:text="@={address.line2}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/address_line_1" />
 
@@ -58,7 +58,7 @@
             android:autofillHints=""
             android:hint="@string/city"
             android:inputType="textPostalAddress"
-            android:text="@={viewModel.address.city}"
+            android:text="@={address.city}"
             app:layout_constraintEnd_toStartOf="@id/state"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/address_line_2" />
@@ -74,7 +74,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/city"
             app:layout_constraintTop_toTopOf="@id/city"
-            app:stateValue="@{viewModel.address.state}" />
+            app:stateValue="@{address.state}" />
 
         <EditText
             android:id="@+id/zip"
@@ -87,20 +87,22 @@
             app:layout_constraintEnd_toEndOf="@id/city"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/city"
-            app:text="@{viewModel.address.zip}" />
+            app:text="@{address.zip}" />
 
         <Button
             android:id="@+id/button_search"
-            style="@style/styleButton"
+            style="@style/ButtonStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
             android:text="@string/find_my_representatives"
             app:layout_constraintTop_toBottomOf="@id/zip" />
+        <!--                    android:onClick="@{() -> viewModel.findMyRepresentatives()}"
+        -->
 
         <Button
             android:id="@+id/button_location"
-            style="@style/styleButton"
+            style="@style/ButtonStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
