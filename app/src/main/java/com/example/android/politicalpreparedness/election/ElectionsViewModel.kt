@@ -1,6 +1,7 @@
 package com.example.android.politicalpreparedness.election
 
 import android.app.Application
+import android.content.ContentValues
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -14,6 +15,7 @@ import com.example.android.politicalpreparedness.utils.NavigationCommand
 import com.example.android.politicalpreparedness.utils.SingleLiveEvent
 import kotlinx.coroutines.launch
 import com.example.android.politicalpreparedness.utils.Result
+import timber.log.Timber
 
 /**
  * @DrStart:    ElectionViewModel will be responsible for preparing and managing the data for
@@ -36,16 +38,19 @@ class ElectionsViewModel(app: Application) : AndroidViewModel(app) {
     val savedElections = electionsRepository.getSaveElections()
 
     init {
+        Timber.i("Elections", "ElectionsViewModel created!")
         showLoading.value = true
         viewModelScope.launch {
             val result = electionsRepository.refreshElections()
             showLoading.value = false
             when (result) {
                 is Result.Success -> {
+                    Timber.i("Elections", "Success:  + ${result.data.elections}")
                     _upcomingElections.value = result.data.elections
                 }
 
                 is Result.Error -> {
+                    Timber.i("Elections", "Error:  + " + result.message)
                     _upcomingElections.value = emptyList()
                     showToast.value = app.getString(R.string.error_upcoming_election)
                 }
@@ -54,3 +59,4 @@ class ElectionsViewModel(app: Application) : AndroidViewModel(app) {
     }
 
 }
+

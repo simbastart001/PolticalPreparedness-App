@@ -15,6 +15,7 @@ import com.example.android.politicalpreparedness.R
 import com.example.android.politicalpreparedness.databinding.FragmentElectionBinding
 import com.example.android.politicalpreparedness.election.adapter.ElectionListAdapter
 import com.example.android.politicalpreparedness.election.adapter.ElectionListener
+import timber.log.Timber
 
 
 /**
@@ -49,6 +50,8 @@ class ElectionsFragment : Fragment() {
             R.layout.fragment_election,
             container, false
         )
+
+        Timber.i("Elections", "ElectionsFragment created!")
 
         binding.lifecycleOwner = this
         binding.viewModel = viewModel

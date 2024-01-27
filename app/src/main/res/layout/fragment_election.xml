@@ -31,6 +31,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_margin="10dp"
+            tools:listitem="@layout/item_election"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintBottom_toTopOf="@id/center"
             app:layout_constraintLeft_toLeftOf="parent"

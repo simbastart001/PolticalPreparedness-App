@@ -15,6 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.lang.Exception
 import com.example.android.politicalpreparedness.utils.Result
+import timber.log.Timber
 
 /**
  * @DrStart:    ElectionRepository is the single source of truth for the ElectionViewModel and
@@ -68,7 +69,7 @@ class ElectionsRepository(private val database: ElectionDatabase) {
                 Result.Success(service.getUpcomingElections())
             }
         } catch (e: Exception) {
-            Log.d(TAG, "Error refreshElections: " + e.message)
+            Timber.i(TAG, "Error refreshElections: " + e.message)
             Result.Error(e.localizedMessage)
         }
     }
@@ -81,4 +82,4 @@ class ElectionsRepository(private val database: ElectionDatabase) {
 
 }
 
-private const val TAG = "ElectionsRepository"
+private const val TAG = "Elections"
