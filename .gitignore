@@ -1,15 +1,18 @@
-*.iml
 .gradle
-/local.properties
-/.idea/caches
+starter/*.iml
+starter/.gradle
+starter/local.properties
+/.idea/caches/build_file_checksum.ser
 /.idea/libraries
 /.idea/modules.xml
 /.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
+starter/.idea
 .DS_Store
-/build
+starter/build
 /captures
 .externalNativeBuild
-.cxx
-local.properties
+
+
+# gradle
+gradle/
+starter/gradlew*
