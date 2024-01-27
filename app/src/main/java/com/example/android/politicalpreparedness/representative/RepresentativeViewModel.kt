@@ -34,6 +34,24 @@ class RepresentativeViewModel(application: Application) : AndroidViewModel(appli
 
     var client: CivicsApiService = CivicsApi.retrofitService
 
+    // LiveData to hold validation errors
+    private val _locationValidationError = MutableLiveData<String?>()
+    val locationValidationError: LiveData<String?>
+        get() = _locationValidationError
+
+    // Call this function to validate the address
+    fun validateAddress(address: Address) {
+        if (address.line1!!.isBlank() || address.zip.isBlank() || address.city.isBlank()) {
+            _locationValidationError.value = "Location is not valid. Please try again!."
+        } else {
+            _locationValidationError.value = null // No errors, location is valid
+        }
+    }
+
+    fun isLocationValid(): Boolean {
+        return _locationValidationError.value == null
+    }
+
     fun updateAddress(address: Address) {
         _address.value = address
     }

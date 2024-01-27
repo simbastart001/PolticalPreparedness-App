@@ -46,7 +46,6 @@ import java.util.Locale
  */
 
 class RepresentativeFragment : Fragment() {
-
     private lateinit var binding: FragmentRepresentativeBinding
     private val viewModel: RepresentativeViewModel by viewModels()
 
@@ -54,7 +53,6 @@ class RepresentativeFragment : Fragment() {
         private const val REQUEST_LOCATION_PERMISSION = 1
         private const val REQUEST_TURN_DEVICE_LOCATION_ON = 2
     }
-
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -73,6 +71,14 @@ class RepresentativeFragment : Fragment() {
         val representativeAdapter = RepresentativeListAdapter()
 
         binding.representativesRecycler.adapter = representativeAdapter
+
+        viewModel.locationValidationError.observe(viewLifecycleOwner, Observer { error ->
+            error?.let {
+                Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
+                // Reset the error after showing it
+                viewModel.isLocationValid()
+            }
+        })
 
         viewModel.address.observe(viewLifecycleOwner, Observer { address ->
             binding.address = address
@@ -246,17 +252,24 @@ class RepresentativeFragment : Fragment() {
     /**
      * @DrStart:     Update the UI with new location data
      */
+
+    // Inside RepresentativeFragment
+
     private fun updateLocationUI(location: Location) {
         lifecycleScope.launch {
             val address = geoCodeLocation(location)
-            address?.let { addr ->
-                viewModel.updateAddress(addr)
-                binding.addressLine1.setText(addr.line1)
-                binding.addressLine2.setText(addr.line2)
-                binding.city.setText(addr.city)
-                updateSpinnerSelection(addr.state)
-                binding.zip.setText(addr.zip)
-                viewModel.getRepresentatives(addr)
+            address.let { addr ->
+                viewModel.validateAddress(addr) // Validate the address
+                if (viewModel.locationValidationError.value == null) {
+                    // If there's no error, update the address and UI
+                    viewModel.updateAddress(addr)
+                    binding.addressLine1.setText(addr.line1)
+                    binding.addressLine2.setText(addr.line2)
+                    binding.city.setText(addr.city)
+                    updateSpinnerSelection(addr.state)
+                    binding.zip.setText(addr.zip)
+                    viewModel.getRepresentatives(addr)
+                }
             }
         }
     }
@@ -279,6 +292,7 @@ class RepresentativeFragment : Fragment() {
                 } ?: throw IOException("No address found")
         }
     }
+
     private fun updateSpinnerSelection(state: String) {
         val states = resources.getStringArray(R.array.states)
         val selectedStateIndex = states.indexOf(state).takeIf { it >= 0 } ?: 0
@@ -300,6 +314,7 @@ class RepresentativeFragment : Fragment() {
             Snackbar.LENGTH_LONG
         ).show()
     }
+
     /**
      * @DrStart:
      * */
