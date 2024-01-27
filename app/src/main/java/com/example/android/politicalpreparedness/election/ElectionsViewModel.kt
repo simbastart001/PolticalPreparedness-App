@@ -38,7 +38,6 @@ class ElectionsViewModel(app: Application) : AndroidViewModel(app) {
     val savedElections = electionsRepository.getSaveElections()
 
     init {
-        Timber.i("Elections", "ElectionsViewModel created!")
         showLoading.value = true
         viewModelScope.launch {
             val result = electionsRepository.refreshElections()
