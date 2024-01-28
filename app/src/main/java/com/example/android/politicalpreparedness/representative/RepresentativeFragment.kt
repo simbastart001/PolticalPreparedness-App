@@ -32,9 +32,9 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import timber.log.Timber
 import java.io.IOException
 import java.util.Locale
+
 
 /**
  * @DrStart:             This class implements a [Fragment] which contains a list of [Representative]s. The
@@ -48,6 +48,7 @@ import java.util.Locale
 class RepresentativeFragment : Fragment() {
     private lateinit var binding: FragmentRepresentativeBinding
     private val viewModel: RepresentativeViewModel by viewModels()
+    private lateinit var representativeAdapter: RepresentativeListAdapter
 
     companion object {
         private const val REQUEST_LOCATION_PERMISSION = 1
@@ -65,12 +66,60 @@ class RepresentativeFragment : Fragment() {
             R.layout.fragment_representative,
             container, false
         )
-
+        representativeAdapter = RepresentativeListAdapter()
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
-        val representativeAdapter = RepresentativeListAdapter()
-
         binding.representativesRecycler.adapter = representativeAdapter
+
+        // Restore saved state
+        savedInstanceState?.getString("addressline1")?.let { savedAddressLine1 ->
+            viewModel.updateAddressLine1(savedAddressLine1)
+        }
+        savedInstanceState?.getString("addressline2")?.let { savedAddressLine2 ->
+            viewModel.updateAddressLine2(savedAddressLine2)
+        }
+        savedInstanceState?.getString("city")?.let { savedCity ->
+            viewModel.updateCity(savedCity)
+        }
+        savedInstanceState?.getString("state")?.let { savedState ->
+            viewModel.updateState(savedState)
+        }
+        savedInstanceState?.getString("zip")?.let { savedZip ->
+            viewModel.updateZip(savedZip)
+        }
+
+        setObservers()
+        setupUI()
+
+        return binding.root
+    }
+
+    private fun setObservers() {
+
+//        observe addressline1
+        viewModel.addressline1.observe(viewLifecycleOwner, Observer { line1 ->
+            binding.addressLine1.setText(line1 ?: "")
+        })
+
+//        observe addressline2
+        viewModel.addressline2.observe(viewLifecycleOwner, Observer { line2 ->
+            binding.addressLine2.setText(line2 ?: "")
+        })
+
+//        observe city
+        viewModel.city.observe(viewLifecycleOwner, Observer { city ->
+            binding.city.setText(city ?: "")
+        })
+//        observe state
+        viewModel.state.observe(viewLifecycleOwner, Observer { state ->
+            binding.state.setSelection(
+                resources.getStringArray(R.array.states).indexOf(state ?: "")
+            )
+        })
+//        observe zip
+        viewModel.zip.observe(viewLifecycleOwner, Observer { zip ->
+            binding.zip.setText(zip ?: "")
+        })
 
         viewModel.locationValidationError.observe(viewLifecycleOwner, Observer { error ->
             error?.let {
@@ -79,7 +128,6 @@ class RepresentativeFragment : Fragment() {
                 viewModel.isLocationValid()
             }
         })
-
         viewModel.address.observe(viewLifecycleOwner, Observer { address ->
             binding.address = address
         })
@@ -87,15 +135,17 @@ class RepresentativeFragment : Fragment() {
             representativeAdapter.submitList(representatives)
         })
 
+    }
+
+    private fun setupUI() {
         binding.buttonLocation.setOnClickListener {
             checkLocationPermissions()
+            viewModel.updateAddressLine1(binding.addressLine1.text.toString())
         }
         binding.buttonSearch.setOnClickListener {
             hideKeyboard()
             searchRepresentatives()
         }
-
-        return binding.root
     }
 
     /**
@@ -253,8 +303,6 @@ class RepresentativeFragment : Fragment() {
      * @DrStart:     Update the UI with new location data
      */
 
-    // Inside RepresentativeFragment
-
     private fun updateLocationUI(location: Location) {
         lifecycleScope.launch {
             val address = geoCodeLocation(location)
@@ -324,7 +372,20 @@ class RepresentativeFragment : Fragment() {
         }
     }
 
-
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        viewModel.updateAddressLine1(binding.addressLine1.text.toString())
+        viewModel.updateAddressLine2(binding.addressLine2.text.toString())
+        viewModel.updateCity(binding.city.text.toString())
+        viewModel.updateState(binding.state.selectedItem.toString())
+        viewModel.updateZip(binding.zip.text.toString())
+        // Save the current value of addressline1 to the outState bundle
+        outState.putString("addressline1", viewModel.addressline1.value)
+        outState.putString("addressline2", viewModel.addressline2.value)
+        outState.putString("city", viewModel.city.value)
+        outState.putString("state", viewModel.state.value)
+        outState.putString("zip", viewModel.zip.value)
+    }
 }
 
 private const val TAG = "RepresentativeFragment"
