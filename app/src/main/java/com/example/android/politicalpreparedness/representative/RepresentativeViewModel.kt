@@ -82,9 +82,15 @@ class RepresentativeViewModel(
     private val _address = MutableLiveData<Address>()
     val address: MutableLiveData<Address>
         get() = _address
+
     private val _representatives = MutableLiveData<List<Representative>>()
     val representatives: LiveData<List<Representative>>
         get() = _representatives
+
+    fun gettRepresentativesList(): List<Representative>? {
+        return _representatives.value
+    }
+
     var client: CivicsApiService = CivicsApi.retrofitService
 
     // LiveData to hold validation errors
@@ -92,6 +98,9 @@ class RepresentativeViewModel(
     val locationValidationError: LiveData<String?>
         get() = _locationValidationError
 
+    fun restoreRepresentatives(representatives: List<Representative>) {
+        _representatives.value = representatives
+    }
 
     // Call this function to validate the address
     fun validateAddress(address: Address) {
@@ -119,6 +128,7 @@ class RepresentativeViewModel(
                         officials
                     )
                 })
+
             } catch (e: Exception) {
                 _representatives.value = emptyList()
                 Timber.i("Elections", "RepresentativeViewModel $e")
@@ -126,15 +136,6 @@ class RepresentativeViewModel(
         }
     }
 
-    fun updateCurrentAddress(
-        line1: String,
-        line2: String?,
-        city: String,
-        state: String,
-        zip: String
-    ) {
-        _address.value = Address(line1, line2, city, state, zip)
-    }
 }
 
 class Factory(val app: Application, private val savedStateHandle: SavedStateHandle) :

@@ -9,6 +9,7 @@ import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.location.Location
 import android.os.Bundle
+import android.os.Parcelable
 import android.util.Log
 import android.view.*
 import android.view.inputmethod.InputMethodManager
@@ -23,6 +24,7 @@ import com.example.android.politicalpreparedness.R
 import com.example.android.politicalpreparedness.databinding.FragmentRepresentativeBinding
 import com.example.android.politicalpreparedness.network.models.Address
 import com.example.android.politicalpreparedness.representative.adapter.RepresentativeListAdapter
+import com.example.android.politicalpreparedness.representative.model.Representative
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationRequest
@@ -49,6 +51,7 @@ class RepresentativeFragment : Fragment() {
     private lateinit var binding: FragmentRepresentativeBinding
     private val viewModel: RepresentativeViewModel by viewModels()
     private lateinit var representativeAdapter: RepresentativeListAdapter
+    private var savedRecyclerLayoutState: Parcelable? = null
 
     companion object {
         private const val REQUEST_LOCATION_PERMISSION = 1
@@ -87,9 +90,19 @@ class RepresentativeFragment : Fragment() {
         savedInstanceState?.getString("zip")?.let { savedZip ->
             viewModel.updateZip(savedZip)
         }
+        // Restore the representatives list if there is a saved state
+        savedInstanceState?.getParcelableArrayList<Representative>("representatives")
+            ?.let { savedRepresentatives ->
+                viewModel.restoreRepresentatives(savedRepresentatives)
+            }
 
         setObservers()
         setupUI()
+
+        // Check if we have a state saved
+        if (savedInstanceState != null) {
+            savedRecyclerLayoutState = savedInstanceState.getParcelable("recycler_layout_state")
+        }
 
         return binding.root
     }
@@ -144,6 +157,7 @@ class RepresentativeFragment : Fragment() {
         }
         binding.buttonSearch.setOnClickListener {
             hideKeyboard()
+            clearFocusFromAllEditTexts()
             searchRepresentatives()
         }
     }
@@ -347,9 +361,26 @@ class RepresentativeFragment : Fragment() {
         binding.state.setSelection(selectedStateIndex)
     }
 
+    private fun clearFocusFromAllEditTexts() {
+        // Clear focus from all EditTexts
+        binding.addressLine1.clearFocus()
+        binding.addressLine2.clearFocus()
+        binding.city.clearFocus()
+        binding.zip.clearFocus()
+        // Optionally, request focus on a non-editable View to ensure no EditText has focus
+        binding.representativesRecycler.requestFocus()
+    }
+
+
     private fun hideKeyboard() {
         val imm = activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(requireView().windowToken, 0)
+        // Check if no view has focus:
+        val view = activity?.currentFocus
+        view?.let { v ->
+            imm.hideSoftInputFromWindow(v.windowToken, 0)
+            // Clear focus from the currently focused view (editText)
+            v.clearFocus()
+        }
     }
 
     /**
@@ -385,7 +416,14 @@ class RepresentativeFragment : Fragment() {
         outState.putString("city", viewModel.city.value)
         outState.putString("state", viewModel.state.value)
         outState.putString("zip", viewModel.zip.value)
+        // Save the list to the outState Bundle
+        val currentRepresentatives = viewModel.gettRepresentativesList()
+        outState.putParcelableArrayList("representatives", ArrayList(currentRepresentatives))
+        // Save RecyclerView's scroll position
+        val recyclerViewState = binding.representativesRecycler.layoutManager?.onSaveInstanceState()
+        outState.putParcelable("recycler_layout_state", recyclerViewState)
     }
+
 }
 
 private const val TAG = "RepresentativeFragment"
