@@ -5,6 +5,8 @@ import android.widget.ImageView
 import android.widget.Spinner
 import androidx.core.net.toUri
 import androidx.databinding.BindingAdapter
+import com.bumptech.glide.Glide
+import com.example.android.politicalpreparedness.R
 
 /**
  * @DrStart:    This class is used to bind data to the views in the layout. The data is passed in
@@ -14,7 +16,11 @@ import androidx.databinding.BindingAdapter
 fun fetchImage(view: ImageView, src: String?) {
     src?.let {
         val uri = src.toUri().buildUpon().scheme("https").build()
-        //TODO: Add Glide call to load image and circle crop - user ic_profile as a placeholder and for errors.
+        Glide.with(view.context)
+            .load(uri)
+            .error(R.drawable.ic_profile)
+            .placeholder(R.drawable.ic_profile)
+            .into(view)
     }
 }
 
@@ -30,6 +36,6 @@ fun Spinner.setNewValue(value: String?) {
     }
 }
 
-inline fun <reified T> toTypedAdapter(adapter: ArrayAdapter<*>): ArrayAdapter<T>{
+inline fun <reified T> toTypedAdapter(adapter: ArrayAdapter<*>): ArrayAdapter<T> {
     return adapter as ArrayAdapter<T>
 }
