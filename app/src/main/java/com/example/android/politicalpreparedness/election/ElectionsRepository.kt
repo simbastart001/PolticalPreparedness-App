@@ -65,7 +65,7 @@ class ElectionsRepository(private val database: ElectionDatabase) {
         return try {
             withContext(Dispatchers.IO) {
                 val result = service.getUpcomingElections()
-                database.electionDao.insertElections(result.elections)
+//                database.electionDao.insertElections(result.elections)
                 Result.Success(service.getUpcomingElections())
             }
         } catch (e: Exception) {
